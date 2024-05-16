@@ -13,7 +13,7 @@ class User(db.Model):
     ¿Como pedir que incluya al menos 1 numero e indicar restricciones en el dato guardado?
     Es obligatorio por tanto que el dato sea un string?
     '''
-    subscription_date = db.Column(db.Integer, unique=False, nullable=False)
+    subscription_date = db.Column(db.String(120), unique=False, nullable=False)
     # Como puedo hacer que la fecha sea un dato con /// o --- y sea aceptado el input en admin?
     first_name = db.Column(db.String(120), unique=False, nullable=False)
     last_name = db.Column(db.String(120), unique=False, nullable=False)
@@ -61,7 +61,6 @@ class Planet(db.Model):
     system_name = db.Column(db.String(120), unique=False, nullable=False)
     planet_name = db.Column(db.String(120), unique=True, nullable=False)
     population = db.Column(db.Integer, unique=False, nullable=True)
-    faction = db.Column(db.String(120), unique=False, nullable=True)
     faction_id = db.Column(db.Integer, ForeignKey("faction.id"))
     faction = db.relationship(Faction)
 
@@ -74,7 +73,7 @@ class Planet(db.Model):
             "planet_name": self.planet_name,
             "system_name": self.system_name,
             "population": self.population,
-            "faction": self.faction
+            "faction": self.faction.serialize()
             # do not serialize the password, its a security breach
         }
     
@@ -95,8 +94,8 @@ class Character(db.Model):
             "id": self.id,
             "name": self.name,
             "gender": self.gender,
-            "planet": self.planet,
-            "faction": self.faction
+            "planet": self.planet.serialize(),
+            "faction": self.faction.serialize()
             # do not serialize the password, its a security breach
         }
 class Favorite_character(db.Model):
