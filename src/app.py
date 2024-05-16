@@ -93,7 +93,7 @@ def get_favorites(user_id):
     return jsonify(show_favorites), 200
 
 @app.route('/users/<int:user_id>/favorites/characters', methods=['POST'])
-def add_favorites_characters(user_id):
+def create_favorite_characters(user_id):
     character_data = request.json
     character_id = character_data["character_id"]
 
@@ -102,6 +102,29 @@ def add_favorites_characters(user_id):
     db.session.commit()
 
     return jsonify(new_favorite_character.serialize()), 200
+
+@app.route('/users/<int:user_id>/favorites/planets', methods=['POST'])
+def create_favorite_planets(user_id):
+    planet_data = request.json
+    planet_id = planet_data["planet_id"]
+
+    new_favorite_planet = Favorite_planet(planet_id=planet_id, user_id=user_id)
+    db.session.add(new_favorite_planet)
+    db.session.commit()
+
+@app.route('/users/<int:user_id>/favorites/planets/<int:favorite_id>', methods=['DELETE'])
+def delete_favorite_planets(user_id, favorite_id):
+    planet = Favorite_planet.query.filter_by(id=favorite_id).first()
+
+    db.session.delete(planet)
+    db.session.commit()
+
+@app.route('/users/<int:user_id>/favorites/character/<int:favorite_id>', methods=['DELETE'])
+def delete_favorite_character(user_id, favorite_id):
+    character = Favorite_character.query.filter_by(id=favorite_id).first()
+
+    db.session.delete(character)
+    db.session.commit()
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
