@@ -10,7 +10,7 @@ class User(db.Model):
     username = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     '''
-    Como pedir que incluya al menos 1 numero e indicar restricciones en el dato guardado?
+    ¿Como pedir que incluya al menos 1 numero e indicar restricciones en el dato guardado?
     Es obligatorio por tanto que el dato sea un string?
     '''
     subscription_date = db.Column(db.Integer, unique=False, nullable=False)
@@ -55,29 +55,6 @@ class Faction(db.Model):
             # do not serialize the password, its a security breach
         }
     
-class Character(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), unique=True, nullable=False)
-    gender = db.Column(db.String(120), unique=False, nullable=True)
-    planet = db.Column(db.String(120), unique=False, nullable=False)
-    planet_id = db.Column(db.Integer, ForeignKey("planet.id"))
-    # Añadir aquí mi user relationship
-    faction = db.Column(db.String(120), unique=False, nullable=True)
-    faction_id = db.Column(db.Integer, ForeignKey("faction.id"))
-    # Añadir aquí mi faction relationship
-
-    def __repr__(self):
-        return f"<Character {self.id}>"
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "gender": self.gender,
-            "planet": self.planet,
-            "faction": self.faction
-            # do not serialize the password, its a security breach
-        }
 
 class Planet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -86,7 +63,7 @@ class Planet(db.Model):
     population = db.Column(db.Integer, unique=False, nullable=True)
     faction = db.Column(db.String(120), unique=False, nullable=True)
     faction_id = db.Column(db.Integer, ForeignKey("faction.id"))
-    # Añadir aquí mi faction relationship
+    faction = db.relationship(Faction)
 
     def __repr__(self):
         return f"<Planet {self.id}>"
@@ -101,4 +78,57 @@ class Planet(db.Model):
             # do not serialize the password, its a security breach
         }
     
-# Aquí vendrían los favoritos que aun no sabemos como hacer la relacion en este modelo de plantilla
+class Character(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    gender = db.Column(db.String(120), unique=False, nullable=True)
+    planet_id = db.Column(db.Integer, ForeignKey("planet.id"))
+    planet = db.relationship(Planet)
+    faction_id = db.Column(db.Integer, ForeignKey("faction.id"))
+    faction = db.relationship(Faction)
+
+    def __repr__(self):
+        return f"<Character {self.id}>"
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "gender": self.gender,
+            "planet": self.planet,
+            "faction": self.faction
+            # do not serialize the password, its a security breach
+        }
+class Favorite_character(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    character_id = db.Column(db.Integer, db.ForeignKey('character.id'))
+    character = db.relationship(Character)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(User)
+
+    def __repr__(self):
+        return f"<Favorite_character{self.character_id}>"
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "character_id": self.character_id,
+            "character_name": self.character.name,
+        }
+    
+class Favorite_planet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))
+    planet = db.relationship(Planet)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(User)
+
+    def __repr__(self):
+        return f"<Favorite_planet {self.id}>"
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "planet_id": self.planet_id,
+            "planet_name": self.planet.name,
+        }
